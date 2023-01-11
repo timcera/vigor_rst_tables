@@ -4,9 +4,7 @@ from unicodedata import east_asian_width
 
 import vim
 
-
-def buffer_encoding():
-    return vim.eval("&enc")
+VIM_BUFFER_ENCODING = vim.eval("&enc")
 
 
 def get_table_bounds():
@@ -154,7 +152,6 @@ def str_width(unicode_text):
 
 
 def get_field_width(field_text):
-    field_text = field_text.decode(buffer_encoding())
     return max(str_width(s) for s in field_text.split("\n"))
 
 
@@ -196,12 +193,7 @@ def get_column_widths_from_border_spec(part):
     if border is None:
         raise RuntimeError("Cannot reflow this table. Top table border not found.")
 
-    left = right = None
-    if border[0] == "+":
-        left = 1
-    if border[-1] == "+":
-        right = -1
-    return [max(0, len(drawing) - 2) for drawing in border[left:right].split("+")]
+    return [max(0, len(drawing) - 2) for drawing in border.split("+")][1:-1]
 
 
 def pad_fields(row, widths):
@@ -212,7 +204,7 @@ def pad_fields(row, widths):
     # Pad all fields using the calculated widths
     new_row = []
     for index, row_text in enumerate(row):
-        unicode_len = str_width(row_text.decode(buffer_encoding()))
+        unicode_len = str_width(row_text)
         col = " " + row_text + " " * int(widths[index] - unicode_len + 1)
         new_row.append(col)
     return new_row
@@ -220,7 +212,6 @@ def pad_fields(row, widths):
 
 def wrap_text(text, width):
     """wrap text, support cjk characters."""
-    text = text.decode(buffer_encoding())
     lines = []
     while len(text) > 0:
         wide = width
@@ -228,8 +219,8 @@ def wrap_text(text, width):
         guess = textwrap.wrap(text, wide)[0]
         while str_width(guess) > width:
             wide -= (str_width(guess) - width + 1) / 2
-            guess = textwrap.wrap(text, wide)[0]
-        lines.append(guess.encode(buffer_encoding()))
+            guess = textwrap.wrap(text, wide)[0].encode(VIM_BUFFER_ENCODING)
+        lines.append(guess)
         text = text[len(guess) :].strip()
     return lines
 
@@ -245,7 +236,6 @@ def reflow_row_contents(row, widths):
 def draw_table(table, manual_widths=None):
     if table == []:
         return []
-
     if manual_widths is None:
         col_widths = get_column_widths(table)
     else:
@@ -253,7 +243,6 @@ def draw_table(table, manual_widths=None):
         new_widths = get_column_widths(table)
         if len(new_widths) > len(col_widths):
             col_widths += new_widths[len(col_widths) :]
-
     # Reserve room for the spaces
     sep_col_widths = [x + 2 for x in col_widths]
     header_line = table_line(sep_col_widths, header=True)
@@ -293,19 +282,33 @@ def apply_indent(table, indent):
 
 def create_table(header=True):
     upper, lower = get_table_bounds()
-    part = vim.current.buffer[upper - 1 : lower]
+    part = [
+        i.encode(VIM_BUFFER_ENCODING).decode("utf8")
+        for i in vim.current.buffer[upper - 1 : lower]
+    ]
     indent = get_indent(part[0])
     table = parse_table(part)
     part = draw_table(table)
-    vim.current.buffer[upper - 1 : lower] = apply_indent(part, indent)
+    vim.current.buffer[upper - 1 : lower] = [
+        i.encode(VIM_BUFFER_ENCODING) for i in apply_indent(part, indent)
+    ]
 
 
 def reflow_table(header=True):
     upper, lower = get_table_bounds()
-    part = vim.current.buffer[upper - 1 : lower]
+    part = [
+        i.encode(VIM_BUFFER_ENCODING).decode("utf8")
+        for i in vim.current.buffer[upper - 1 : lower]
+    ]
     indent = get_indent(part[0])
     table = parse_table(part)
+
     widths = get_column_widths_from_border_spec(part)
+
     table = parse_table(part)
+
     part = draw_table(table, widths)
-    vim.current.buffer[upper - 1 : lower] = apply_indent(part, indent)
+
+    vim.current.buffer[upper - 1 : lower] = [
+        i.encode(VIM_BUFFER_ENCODING) for i in apply_indent(part, indent)
+    ]
