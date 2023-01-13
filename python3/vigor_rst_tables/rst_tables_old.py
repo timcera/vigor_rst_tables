@@ -233,7 +233,7 @@ def reflow_row_contents(row, widths):
     return new_row
 
 
-def draw_table(table, manual_widths=None, header=True):
+def draw_table(table, manual_widths=None):
     if table == []:
         return []
     if manual_widths is None:
@@ -245,7 +245,7 @@ def draw_table(table, manual_widths=None, header=True):
             col_widths += new_widths[len(col_widths) :]
     # Reserve room for the spaces
     sep_col_widths = [x + 2 for x in col_widths]
-    header_line = table_line(sep_col_widths, header=header)
+    header_line = table_line(sep_col_widths, header=True)
     normal_line = table_line(sep_col_widths)
 
     output = [normal_line]
@@ -288,7 +288,7 @@ def create_table(header=True):
     ]
     indent = get_indent(part[0])
     table = parse_table(part)
-    part = draw_table(table, header=header)
+    part = draw_table(table)
     vim.current.buffer[upper - 1 : lower] = [
         i.encode(VIM_BUFFER_ENCODING) for i in apply_indent(part, indent)
     ]
@@ -302,9 +302,13 @@ def reflow_table(header=True):
     ]
     indent = get_indent(part[0])
     table = parse_table(part)
+
     widths = get_column_widths_from_border_spec(part)
+
     table = parse_table(part)
-    part = draw_table(table, widths, header=header)
+
+    part = draw_table(table, widths)
+
     vim.current.buffer[upper - 1 : lower] = [
         i.encode(VIM_BUFFER_ENCODING) for i in apply_indent(part, indent)
     ]
