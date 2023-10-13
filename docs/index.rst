@@ -3,8 +3,8 @@
 vigor_rst_tables
 ================
 
-This is the home page for vigor_rst_tables.  vigor_rst_tables is vim/nvim plugin
-Python library to work with restructured text tables.
+This is the home page for vigor_rst_tables.  vigor_rst_tables is vim/nvim
+plugin Python library to work with restructured text tables.
 
 vigor_rst_tables should work with Python 3.6+.
 
