@@ -14,7 +14,6 @@ Table of Contents
    :maxdepth: 2
 
    readme
-   contributing
    authors
    license
 

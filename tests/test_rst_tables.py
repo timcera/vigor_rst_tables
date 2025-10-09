@@ -1,24 +1,39 @@
-""" Run tests with
+"""Run tests with
 
 pytest tests
 """
 
-import re
+# Begin normal module loading
+import os
 import sys
-
-# Mock out the vim library
+import unittest
 from os.path import abspath, dirname
 from os.path import join as pjoin
+from types import ModuleType
+from unittest import mock
+
+import vim
+
+# Load test subjects
+from vigor_rst_tables import (
+    draw_table,
+    get_column_widths,
+    get_column_widths_from_border_spec,
+    get_table_bounds,
+    join_rows,
+    pad_fields,
+    parse_table,
+    reflow_row_contents,
+    split_row_into_lines,
+    table_line,
+    unify_table,
+)
 
 ROOT = abspath(pjoin(dirname(__file__), ".."))
 MOD_NAME = "vigor_rst_tables"
 VIM_PATH = pjoin(ROOT, "plugin", MOD_NAME + ".vim")
 PY_PATH = pjoin(ROOT, "python3", MOD_NAME, "rst_tables.py")
 sys.path.insert(0, pjoin(ROOT, "tests", "mocks"))
-
-from unittest import mock
-
-import vim
 
 VIMVAR = {'expand("<sfile>")': VIM_PATH, "&encoding": "utf-8", "&enc": "utf-8"}
 
@@ -33,7 +48,6 @@ vim.current = mock.Mock()
 
 # Read Python code in rst_tables, make into a module.
 # https://stackoverflow.com/questions/5362771/how-to-load-a-module-from-code-in-a-string
-from types import ModuleType
 
 with open(VIM_PATH) as fobj:
     content = fobj.read()
@@ -43,26 +57,6 @@ mod = ModuleType(MOD_NAME)
 sys.modules[MOD_NAME] = mod
 exec(py_content, mod.__dict__)
 
-# Begin normal module loading
-import os
-import unittest
-
-# Load test subjects
-from vigor_rst_tables import (
-    draw_table,
-    get_column_widths,
-    get_column_widths_from_border_spec,
-    get_table_bounds,
-    join_rows,
-    pad_fields,
-    parse_table,
-    partition_raw_lines,
-    reflow_row_contents,
-    reflow_table,
-    split_row_into_lines,
-    table_line,
-    unify_table,
-)
 
 # reformat_table,
 
@@ -204,9 +198,7 @@ class TestRSTTableFormatter(unittest.TestCase):
 | x   | This is a long line |
 |     | that is spread out  |
 |     | over multiple lines |
-+-----+---------------------+""".split(
-            "\n"
-        )
++-----+---------------------+""".split("\n")
         expect = [
             ["Foo", "Bar"],
             ["x", "This is a long line\nthat is spread out\nover multiple lines"],
@@ -236,9 +228,7 @@ class TestRSTTableFormatter(unittest.TestCase):
 | x   | This is a long line |
 |     | that is spread out  |
 |     | over multiple lines |
-+-----+---------------------+""".split(
-            "\n"
-        )
++-----+---------------------+""".split("\n")
         self.assertEqual(expect, draw_table(inputstr))
 
     def testTableLine(self):
@@ -376,9 +366,7 @@ class TestRSTTableFormatter(unittest.TestCase):
 +----------------+---------------------------------------------------------------+
 |                | habitasse platea dictumst. Phasellus pretium iaculis.         |
 +----------------+---------------------------------------------------------------+
-""".rstrip().split(
-            "\n"
-        )
+""".rstrip().split("\n")
         self.assertEqual(expect, draw_table(parse_table(raw_lines)))
 
 

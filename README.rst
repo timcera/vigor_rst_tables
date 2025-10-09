@@ -12,18 +12,19 @@ It is a modification of the standard RST-Table vim plugin plus following feature
 
 This plugin allows to create and edit restructuredText tables easily.
 
-Its adds two new commands:
+Its adds two new commands::
 
     ,,c  ->  Creates a new restructuredText table with headers.
     ,,f  ->  Fix table columns in a table with headers.
 
-For example, if you have a paragraph with data like this:
+For example, if you have a paragraph with data like this::
 
     nombre      apellido    edad
     pepe        zarate      28
     toto        garcia      29
 
-you can press ",,c" to create a simple table:
+you can move the cursor onto one of the data lines and press ",,c" to create
+a simple table:
 
     +--------+----------+------+
     | nombre | apellido | edad |
@@ -35,7 +36,7 @@ you can press ",,c" to create a simple table:
 
 
 Now, if you change the table content, for example adding characters
-to the first content row.
+to the first content row.::
 
     +--------+----------+------+
     | nombre | apellido | edad |
@@ -45,7 +46,8 @@ to the first content row.
     | toto   | un appellido largo...   | 29   |
     +--------+----------+------+
 
-you need to fix the columns widths. So, press ",,f" and you will gets:
+To fix the columns widths, move the cursor somewhere into the table and press
+",,f" and you will get:
 
     +----------------------------------------+-----------------------+------+
     | nombre                                 | apellido              | edad |

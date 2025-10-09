@@ -251,7 +251,6 @@ def draw_table(table, manual_widths=None, header=True):
     output = [normal_line]
     first = True
     for row in table:
-
         if manual_widths:
             row = reflow_row_contents(row, manual_widths)
 

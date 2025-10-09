@@ -2,9 +2,16 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 
+exclude: |
+    (?x)^(
+        .*\.dods|
+        .*\.dmr|
+        .*\.dmd
+        )$
+
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.4.0
+      rev: v4.6.0
       hooks:
           - id: check-case-conflict
           - id: check-docstring-first
@@ -22,20 +29,32 @@ repos:
           - id: trailing-whitespace
             exclude: notebooks/tstoolbox_plot_bash.sh
 
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      # Ruff version.
+      rev: v0.4.9
+      hooks:
+          # Run the linter.
+          - id: ruff
+            types_or: [python, pyi, jupyter]
+            args: [--fix]
+          # Run the formatter.
+          - id: ruff-format
+            types_or: [python, pyi, jupyter]
+
     - repo: https://github.com/pappasam/toml-sort
-      rev: v0.22.3
+      rev: v0.23.1
       hooks:
           - id: toml-sort-fix
             args: [--in-place, --spaces-indent-inline-array, '4']
 
     - repo: https://github.com/adrienverge/yamllint.git
-      rev: v1.29.0
+      rev: v1.35.1
       hooks:
           - id: yamllint
             args: [--format, parsable, --strict]
 
     - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
-      rev: 0.2.2
+      rev: 0.2.3
       hooks:
           - id: yamlfmt
 
@@ -51,45 +70,18 @@ repos:
           - id: beautysh
             args: [--indent-size, '4']
 
-    - repo: https://github.com/psf/black
-      rev: 23.1.0
-      hooks:
-          - id: black
-          - id: black-jupyter
-
-    - repo: https://github.com/pycqa/isort
-      rev: 5.12.0
-      hooks:
-          - id: isort
-            name: isort (python)
-            args: [--profile, black, --filter-files]
-          - id: isort
-            name: isort (cython)
-            types: [cython]
-            args: [--profile, black, --filter-files]
-          - id: isort
-            name: isort (pyi)
-            types: [pyi]
-            args: [--profile, black, --filter-files]
-
     - repo: https://github.com/asottile/blacken-docs
-      rev: 1.13.0
+      rev: 1.16.0
       hooks:
           - id: blacken-docs
 
     - repo: https://github.com/asottile/pyupgrade
-      rev: v3.3.1
+      rev: v3.16.0
       hooks:
           - id: pyupgrade
 
     - repo: https://github.com/commitizen-tools/commitizen
-      rev: v2.41.0
+      rev: v3.27.0
       hooks:
           - id: commitizen
             stages: [commit-msg]
-
-    - repo: https://github.com/mwouts/jupytext
-      rev: v1.14.4
-      hooks:
-          - id: jupytext
-            args: [--from, ipynb, --to, auto:percent, --sync]
